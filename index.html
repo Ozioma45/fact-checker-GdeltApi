@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>TruthCheck – Quick Verify</title>
+    <style>
+      body {
+        font-family: Arial;
+        padding: 20px;
+        background: #f2f2f2;
+      }
+      input,
+      button {
+        padding: 10px;
+        font-size: 16px;
+      }
+      .result {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>🕵️‍♂️ Quick Check Tool</h2>
+    <p>
+      Type a claim or keyword (e.g., “COVID in Kano”) to verify recent news.
+    </p>
+
+    <input type="text" id="query" placeholder="Enter keyword or phrase" />
+    <button onclick="verifyClaim()">Verify</button>
+
+    <div class="result" id="results"></div>
+
+    <script>
+      async function verifyClaim() {
+        const query = document.getElementById("query").value;
+        const res = document.getElementById("results");
+        res.innerHTML = "Loading...";
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/api/quick-check?q=${encodeURIComponent(
+              query
+            )}`
+          );
+          const data = await response.json();
+
+          if (!data.articles || data.articles.length === 0) {
+            res.innerHTML = "<p>No articles found.</p>";
+            return;
+          }
+
+          res.innerHTML = data.articles
+            .slice(0, 5)
+            .map(
+              (article) => `
+          <div style="margin-bottom: 15px;">
+            <strong>${article.title}</strong><br>
+            <a href="${article.url}" target="_blank">${article.url}</a>
+          </div>
+        `
+            )
+            .join("");
+        } catch (err) {
+          res.innerHTML = "<p>Error fetching results.</p>";
+        }
+      }
+    </script>
+  </body>
+</html>
